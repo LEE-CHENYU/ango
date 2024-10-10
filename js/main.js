@@ -20,7 +20,7 @@ async function showPosts() {
             postEl.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.1)';
             postEl.style.backgroundColor = '#fff';
             postEl.innerHTML = `
-                <h3>${post.title}</h3>
+                <h3>${post.title} ${post.llmBreakable ? '🤖' : ''}</h3>
                 <input type="answer" placeholder="Type the match" class="answer-input" data-answer="${post.answer}" style="margin-bottom: 10px; width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
                 <p class="post-address" style="display: none;">${post.address}</p>
                 <p class="post-time" style="display: none;">${post.time}</p>
@@ -83,6 +83,24 @@ function addPost(event) {
     .catch(error => console.error('Error creating post:', error));
 }
 
-// Event listener
+// Event listeners
 document.querySelector('#refresh-posts-btn').addEventListener('click', showPosts);
 form.addEventListener('submit', addPost);
+
+// document.querySelector('#check-answer-btn').addEventListener('click', () => {
+//     const question = document.querySelector('#post-title').value;
+//     console.log(JSON.stringify({ question }));
+//     fetch('/check-answer-breakability', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ question })
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         console.log('Answer check result:', data.result);
+//         // Display the result to the user as needed
+//     })
+//     .catch(error => console.error('Error checking answer:', error));
+// });

@@ -1,6 +1,6 @@
 let posts = [
-    { id: 1, title: 'What the name of the cat that lives in 404?', address: '123 Cat St, NYC', time: '3:00 PM', answer: 'Kou' },
-    { id: 2, title: 'What is soursop best for?', address: '456 Fruit Ave, NYC', time: '4:00 PM', answer: 'Cocktail' },
+    { id: 1, title: 'What the name of the cat that lives in 404?', address: '123 Cat St, NYC', time: '3:00 PM', answer: 'Kou', llmBreakable: true },
+    { id: 2, title: 'What is soursop best for?', address: '456 Fruit Ave, NYC', time: '4:00 PM', answer: 'Cocktail', llmBreakable: false },
 ];
 
 // @desc: Get all posts
@@ -40,7 +40,8 @@ export const createPost = (req, res, next) => {
         title: req.body.title,
         address: req.body.address || 'TBA',
         time: req.body.time || 'TBA',
-        answer: req.body.answer
+        answer: req.body.answer,
+        llmBreakable: req.body.llmBreakable || false
     };
 
     if (!newPost.title) {
@@ -80,6 +81,9 @@ export const updatePost = (req, res, next) => {
     }
     if (req.body.answer) {
         post.answer = req.body.answer;
+    }
+    if (req.body.llmBreakable !== undefined) {
+        post.llmBreakable = req.body.llmBreakable;
     }
     res.status(200).json(post);
 }

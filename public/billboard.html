@@ -48,6 +48,15 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
+        .llm-breakable-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 5px;
+            vertical-align: middle;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
     </style>
 </head>
 <body>
@@ -73,9 +82,12 @@
         <label for="post-title" style="font-family: 'Courier New', monospace; color: #007BFF; margin-bottom: 10px; display: block;">Collude Your Gathering</label>
         <input type="text" id="post-title" placeholder="Ango" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
         <input type="answer" id="post-answer" placeholder="Match" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
+        <span id="answer-check-icon" class="llm-breakable-icon"></span>
+        <button type="button" id="check-answer-btn" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-bottom: 10px;">Check ANGO</button>
         <input type="text" id="post-address" placeholder="Address" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
         <input type="text" id="post-time" placeholder="Time" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
-        <button type="submit" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">Add Post</button>
+        <input type="hidden" id="llm-breakable" value="false">
+        <button type="submit" id="add-post-btn" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">Add Post</button>
     </form>
     <button id="refresh-posts-btn" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 10px;">Refresh Posts</button>
     <script>
@@ -83,6 +95,12 @@
         const refreshBtn = document.querySelector('#refresh-posts-btn');
         const form = document.querySelector('#add-post-form');
         const closeForm = document.querySelector('#close-form');
+        const postTitleInput = document.querySelector('#post-title');
+        const postAnswerInput = document.querySelector('#post-answer');
+        const answerCheckIcon = document.querySelector('#answer-check-icon');
+        const checkAnswerBtn = document.querySelector('#check-answer-btn');
+        const llmBreakableInput = document.querySelector('#llm-breakable');
+        const addPostBtn = document.querySelector('#add-post-btn');
 
         createBtn.addEventListener('click', () => {
             form.style.display = 'block';
@@ -100,6 +118,62 @@
             }
         });
 
+        checkAnswerBtn.addEventListener('click', async () => {
+            const question = postTitleInput.value;
+            answerCheckIcon.textContent = ''; // Clear the icon before checking
+            if (question) {
+                try {
+                    const response = await fetch('/check-answer-breakability', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ question })
+                    });
+                    const result = await response.json();
+                    if (result.result === '1') {
+                        answerCheckIcon.textContent = '✅'; // Use a check emoji
+                        llmBreakableInput.value = 'true';
+                    } else {
+                        answerCheckIcon.textContent = '❌'; // Use a cross emoji
+                        llmBreakableInput.value = 'false';
+                    }
+                } catch (error) {
+                    console.error('Error checking answer breakability:', error);
+                }
+            }
+        });
+
+        addPostBtn.addEventListener('click', async (event) => {
+            event.preventDefault();
+            const title = postTitleInput.value;
+            const answer = postAnswerInput.value;
+            const address = document.querySelector('#post-address').value;
+            const time = document.querySelector('#post-time').value;
+            const llmBreakable = llmBreakableInput.value === 'true';
+
+            try {
+                const response = await fetch('/api/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title, answer, address, time, llmBreakable })
+                });
+                if (response.ok) {
+                    console.log('Post added successfully');
+                    form.style.display = 'none';
+                    if (typeof showPosts === 'function') {
+                        showPosts();
+                    }
+                } else {
+                    console.error('Failed to add post');
+                }
+            } catch (error) {
+                console.error('Error adding post:', error);
+            }
+        });
+    </script>
     </script>
     <div id="output" style="margin-top: 20px;"></div>
     <script src="../js/main.js"></script>
