@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANGO Gathering</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        pre {
+            font-family: 'Courier New', monospace;
+            color: #007BFF;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #add-post-form {
+            display: none;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        #output > div {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <pre>
+     █████╗ ███╗   ██╗ ██████╗  ██████╗ 
+    ██╔══██╗████╗  ██║██╔════╝ ██╔═══██╗
+    ███████║██╔██╗ ██║██║  ███╗██║   ██║
+    ██╔══██║██║╚██╗██║██║   ██║██║   ██║
+    ██║  ██║██║ ╚████║╚██████╔╝╚██████╔╝
+    ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ 
+                                       
+     ██████╗  █████╗ ███╗   ██╗ ██████╗ 
+    ██╔════╝ ██╔══██╗████╗  ██║██╔═══██╗
+    ██║  ███╗███████║██╔██╗ ██║██║   ██║
+    ██║   ██║██╔══██║██║╚██╗██║██║   ██║
+    ╚██████╔╝██║  ██║██║ ╚████║╚██████╔╝
+     ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+    </pre>
+    <h1>Welcome! Create an ANGO to initiate a gathering</h1>
+    <button id="create-ango-btn">Create ANGO</button>
+    <form id="add-post-form"> 
+        <label for="post-title" style="font-family: 'Courier New', monospace; color: #007BFF; margin-bottom: 10px; display: block;">Initiate An Gathering</label>
+        <input type="text" id="post-title" placeholder="Ango" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
+        <input type="text" id="post-time" placeholder="Time" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
+        <input type="text" id="post-address" placeholder="Address" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
+        <button type="submit" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">Add Post</button>
+    </form>
+    <div id="output"></div>
+    <script>
+        const createBtn = document.querySelector('#create-ango-btn');
+        const form = document.querySelector('#add-post-form');
+
+        createBtn.addEventListener('click', () => {
+            form.style.display = 'block';
+        });
+    </script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANGO Gathering</title>
+    <style>
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background-color: #0f0f0f;
+            color: #0ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            background-color: rgba(20, 20, 20, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            max-width: 700px;
+            width: 100%;
+            animation: neon-glow 1.5s infinite alternate;
+        }
+        @keyframes neon-glow {
+            from {
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            }
+            to {
+                box-shadow: 0 0 60px rgba(0, 255, 255, 1);
+            }
+        }
+        pre {
+            font-family: 'Courier New', monospace;
+            color: #0ff;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            text-shadow: 0 0 5px #0ff;
+        }
+        h1 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #0ff;
+        }
+        button {
+            background-color: #0ff;
+            color: #0f0f0f;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            text-shadow: 0 0 5px #0ff;
+        }
+        button:hover {
+            background-color: #00cccc;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <pre>
+          ██████╗  █████╗ ███╗   ██╗ ██████╗ ██████╗ ██╗   ██╗███╗   ███╗██████╗ 
+         ██╔════╝ ██╔══██╗████╗  ██║██╔═══██╗██╔══██╗██║   ██║████╗ ████║██╔══██╗
+         ██║  ███╗███████║██╔██╗ ██║██║   ██║██████╔╝██║   ██║██╔████╔██║██████╔╝
+         ██║   ██║██╔══██║██║╚██╗██║██║   ██║██╔═══╝ ██║   ██║██║╚██╔╝██║██╔═══╝ 
+         ╚██████╔╝██║  ██║██║ ╚████║╚██████╔╝██║     ╚██████╔╝██║ ╚═╝ ██║██║     
+          ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝      ╚═════╝ ╚═╝     ╚═╝╚═╝     
+        </pre>
+        <h1 id="init-ango-btn" style="font-family: 'Courier New', monospace; font-size: 24px; color: #fff; text-shadow: 0 0 5px #0ff; cursor: pointer;" onclick="window.location.href='http://localhost:8000/billboard.html'">Join the Gathering Realm of ANGO</h1>
+    </div>
+
+</body>
+</html>
