@@ -86,6 +86,10 @@
         <button type="button" id="check-answer-btn" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-bottom: 10px;">Check ANGO</button>
         <input type="text" id="post-address" placeholder="Address" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
         <input type="text" id="post-time" placeholder="Time" style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; width: 80%;">
+        <div style="margin-bottom: 10px;">
+            <input type="checkbox" id="ambiguous-mode" style="margin-right: 5px;">
+            <label for="ambiguous-mode" style="font-family: 'Courier New', monospace; color: #007BFF; font-size: 12px;">Use Ambiguous Matching Mode</label>
+        </div>
         <input type="hidden" id="llm-breakable" value="false">
         <button type="submit" id="add-post-btn" style="background-color: #007BFF; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px;">Add Post</button>
     </form>
@@ -101,6 +105,7 @@
         const checkAnswerBtn = document.querySelector('#check-answer-btn');
         const llmBreakableInput = document.querySelector('#llm-breakable');
         const addPostBtn = document.querySelector('#add-post-btn');
+        const ambiguousModeCheckbox = document.querySelector('#ambiguous-mode');
 
         createBtn.addEventListener('click', () => {
             form.style.display = 'block';
@@ -151,6 +156,7 @@
             const address = document.querySelector('#post-address').value;
             const time = document.querySelector('#post-time').value;
             const llmBreakable = llmBreakableInput.value === 'true';
+            const ambiguousMode = ambiguousModeCheckbox.checked;
 
             try {
                 const response = await fetch('/api/posts', {
@@ -158,7 +164,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ title, answer, address, time, llmBreakable })
+                    body: JSON.stringify({ title, answer, address, time, llmBreakable, ambiguousMode })
                 });
                 if (response.ok) {
                     console.log('Post added successfully');
@@ -173,7 +179,6 @@
                 console.error('Error adding post:', error);
             }
         });
-    </script>
     </script>
     <div id="output" style="margin-top: 20px;"></div>
     <script src="../js/main.js"></script>
