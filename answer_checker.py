@@ -33,11 +33,44 @@ class AnswerChecker:
             print(f"An error occurred: {str(e)}")
             return None
 
-if len(sys.argv) != 2:
+        # ... existing code ...
+
+    def check_answer_ambiguity(self, user_answer, correct_answer):
+        prompt = f"""
+        Evaluate if the user's answer is correct or close enough to the expected answer. 
+        User's Answer: {user_answer}
+        Expected Answer: {correct_answer}
+        Respond with 1 if the user's answer is acceptable, or 0 if it is not.
+        """
+        
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[{"role": "system", "content": "You are an expert in evaluating the correctness of answers. Determine if the user's answer is acceptable."}, {"role": "user", "content": prompt}],
+                temperature=0.7,
+                max_tokens=1,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            return None
+
+if len(sys.argv) != 2 or 3:
     print("Usage: python3 answer_checker.py <question>")
     sys.exit(1)
 
-question = sys.argv[1]
-checker = AnswerChecker()
-result = checker.check_answer_breakability(question)
-print(result)
+elif len(sys.argv) == 2:
+    question = sys.argv[1]
+    checker = AnswerChecker()
+    result = checker.check_answer_breakability(question)
+    print(result)
+
+elif len(sys.argv) == 3:
+    user_answer = sys.argv[1]
+    correct_answer = sys.argv[2]
+    checker = AnswerChecker()
+    result = checker.check_answer_ambiguity(user_answer, correct_answer)
+    print(result)

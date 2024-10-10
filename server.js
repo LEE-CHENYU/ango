@@ -47,6 +47,29 @@ app.post('/check-answer-breakability', (req, res) => {
     });
 });
 
+// ... existing code ...
+
+app.post('/check-answer-ambiguity', (req, res) => {
+    const { userAnswer, answer } = req.body;
+    exec(`python3 /Users/chenyusu/ango/answer_checker.py "${userAnswer}" "${answer}"`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return res.status(500).json({ 
+                error: 'Error executing script', 
+                details: error.message 
+            });
+        }
+        if (stderr) {
+            console.error(`stderr: ${stderr}`);
+            return res.status(500).json({ 
+                error: 'Script error', 
+                details: stderr 
+            });
+        }
+        res.json({ isCorrect: stdout.trim() === '1' });
+    });
+});
+
 // Body parser middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(logger);

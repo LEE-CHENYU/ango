@@ -30,21 +30,42 @@ async function showPosts() {
 
         // Add event listeners to check answers
         document.querySelectorAll('.answer-input').forEach(input => {
-            input.addEventListener('input', function() {
+            input.addEventListener('input', async function() {
                 const answer = this.getAttribute('data-answer').toLowerCase();
-                if (this.value.toLowerCase() === answer) {
-                    const address = this.nextElementSibling;
-                    const time = address.nextElementSibling;
-                    address.style.display = 'block';
-                    time.style.display = 'block';
+                const userAnswer = this.value.toLowerCase();
+                const isAmbiguousMode = post.ambiguousMode;
+        
+                if (isAmbiguousMode) {
+                    try {
+                        const response = await fetch('/check-answer-ambiguity', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ userAnswer, answer })
+                        });
+                        const result = await response.json();
+                        toggleDisplay(this, result.isCorrect);
+                    } catch (error) {
+                        console.error('Error checking answer ambiguity:', error);
+                    }
                 } else {
-                    const address = this.nextElementSibling;
-                    const time = address.nextElementSibling;
-                    address.style.display = 'none';
-                    time.style.display = 'none';
+                    toggleDisplay(this, userAnswer === answer);
                 }
             });
         });
+        
+        function toggleDisplay(input, isCorrect) {
+            const address = input.nextElementSibling;
+            const time = address.nextElementSibling;
+            if (isCorrect) {
+                address.style.display = 'block';
+                time.style.display = 'block';
+            } else {
+                address.style.display = 'none';
+                time.style.display = 'none';
+            }
+        }
     } catch (error) {
         console.error('Error fetching posts:', error);
     }
