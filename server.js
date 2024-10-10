@@ -47,10 +47,12 @@ app.post('/check-answer-breakability', (req, res) => {
     });
 });
 
-// ... existing code ...
-
 app.post('/check-answer-ambiguity', (req, res) => {
     const { userAnswer, answer } = req.body;
+    // const requestBody1 = JSON.parse('{"question": "KOU"}');
+    // const userAnswer = requestBody1.question;
+    // const requestBody2 = JSON.parse('{"question": "Kou"}');
+    // const answer = requestBody2.question;
     exec(`python3 /Users/chenyusu/ango/answer_checker.py "${userAnswer}" "${answer}"`, (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);

@@ -1,5 +1,5 @@
 let posts = [
-    { id: 1, title: 'What the name of the cat that lives in 404?', address: '123 Cat St, NYC', time: '3:00 PM', answer: 'Kou', llmBreakable: true, ambiguousMode: false },
+    { id: 1, title: 'What the name of the cat that lives in 404?', address: '123 Cat St, NYC', time: '3:00 PM', answer: 'Kou', llmBreakable: true, ambiguousMode: true },
     { id: 2, title: 'What is soursop best for?', address: '456 Fruit Ave, NYC', time: '4:00 PM', answer: 'Cocktail', llmBreakable: false, ambiguousMode: false },
 ];
 

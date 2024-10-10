@@ -21,7 +21,7 @@ async function showPosts() {
             postEl.style.backgroundColor = '#fff';
             postEl.innerHTML = `
                 <h3>${post.title} ${post.llmBreakable ? '🤖' : ''}</h3>
-                <input type="answer" placeholder="Type the match" class="answer-input" data-answer="${post.answer}" style="margin-bottom: 10px; width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <input type="answer" placeholder="Type the match" class="answer-input" data-answer="${post.answer}" style="margin-bottom: 10px; width: 80%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" data-ambiguous-mode="${post.ambiguousMode}">
                 <p class="post-address" style="display: none;">${post.address}</p>
                 <p class="post-time" style="display: none;">${post.time}</p>
             `;
@@ -33,7 +33,7 @@ async function showPosts() {
             input.addEventListener('input', async function() {
                 const answer = this.getAttribute('data-answer').toLowerCase();
                 const userAnswer = this.value.toLowerCase();
-                const isAmbiguousMode = post.ambiguousMode;
+                const isAmbiguousMode = this.getAttribute('data-ambiguous-mode') === 'true';
         
                 if (isAmbiguousMode) {
                     try {

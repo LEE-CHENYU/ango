@@ -58,11 +58,8 @@ class AnswerChecker:
             print(f"An error occurred: {str(e)}")
             return None
 
-if len(sys.argv) != 2 or 3:
-    print("Usage: python3 answer_checker.py <question>")
-    sys.exit(1)
 
-elif len(sys.argv) == 2:
+if len(sys.argv) == 2:
     question = sys.argv[1]
     checker = AnswerChecker()
     result = checker.check_answer_breakability(question)
@@ -74,3 +71,6 @@ elif len(sys.argv) == 3:
     checker = AnswerChecker()
     result = checker.check_answer_ambiguity(user_answer, correct_answer)
     print(result)
+    
+else:
+    sys.exit(1)
