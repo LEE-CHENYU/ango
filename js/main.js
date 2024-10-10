@@ -31,8 +31,8 @@ async function showPosts() {
         // Add event listeners to check answers
         document.querySelectorAll('.answer-input').forEach(input => {
             input.addEventListener('input', function() {
-                const answer = this.getAttribute('data-answer');
-                if (this.value === answer) {
+                const answer = this.getAttribute('data-answer').toLowerCase();
+                if (this.value.toLowerCase() === answer) {
                     const address = this.nextElementSibling;
                     const time = address.nextElementSibling;
                     address.style.display = 'block';
