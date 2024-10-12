@@ -16,7 +16,11 @@ function PostItem({ post }) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ correctAnswer: post.answer, userAnswer: userAnswer })
+        body: JSON.stringify({ 
+          correctAnswer: post.answer, 
+          userAnswer: userAnswer,
+          ambiguousMode: post.ambiguous_mode // Assuming the post object has this property
+        })
       });
 
       if (!response.ok) {
@@ -43,7 +47,8 @@ function PostItem({ post }) {
   return (
     <div style={styles.postContainer}>
       {post.question} {isCorrect ? '✅' : isCorrect === false ? '❌' : ''}
-      {post.llmBreakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
+      {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
+      {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>}
       
       <div style={styles.answerSection}>
         <input

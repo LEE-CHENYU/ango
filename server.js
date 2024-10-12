@@ -3,10 +3,15 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 const { exec } = require('child_process');
+const { Pool } = require('pg');
+const dotenv = require('dotenv');
+
+// Load environment variables
+dotenv.config();
 
 // Initialize Express app
 const app = express();
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 
 // CORS Configuration
 app.use(cors({
@@ -18,39 +23,17 @@ app.use(cors({
 // Middleware
 app.use(bodyParser.json());
 
-// Sample data (Replace with your database)
-let postsData = [
-  {
-    id: 1,
-    question: 'What the name of the cat that lives in 404?',
-    address: '123 Cat St, NYC',
-    time: '3:00 PM',
-    answer: 'Kou',
-    visible: false,
-    ambiguousMode: true,
-    llmBreakable: true
-  },
-  {
-    id: 2,
-    question: 'What is soursop best for?',
-    address: '456 Fruit Ave, NYC',
-    time: '4:00 PM',
-    answer: 'Cocktail',
-    visible: false,
-    ambiguousMode: false,
-    llmBreakable: false
-  },
-  {
-    id: 3,
-    question: 'What is the capital of France?',
-    answer: 'Paris',
-    address: '123 Eiffel Tower, Paris',
-    time: '10:00 AM',
-    visible: false,
-    ambiguousMode: false,
-    llmBreakable: true
-  }
-];
+// Initialize PostgreSQL Pool
+const pool = new Pool({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+
+// Make the pool accessible to routes via req.app.locals
+app.locals.pool = pool;
 
 // Endpoint to serve static files (e.g., main.js)
 app.get('/js/main.js', (req, res) => {
@@ -93,81 +76,97 @@ app.post('/api/check-answer-breakability', (req, res) => {
 });
 
 // Endpoint to check answer ambiguity using the Python script
-app.post('/api/check-answer-ambiguity', (req, res) => {
-  const { correctAnswer, userAnswer } = req.body;
+app.post('/api/check-answer-ambiguity', async (req, res) => {
+  const { correctAnswer, userAnswer, ambiguousMode } = req.body;
 
   if (!correctAnswer || !userAnswer) {
     console.error('Missing input:', { correctAnswer, userAnswer });
     return res.status(400).json({ message: 'Both userAnswer and correctAnswer are required.', details: { correctAnswer, userAnswer } });
   }
 
-  // Execute the Python script
-  const scriptPath = path.join(__dirname, 'answer_checker.py');
-  const command = `python3 "${scriptPath}" "${userAnswer.replace(/"/g, '\\"')}" "${correctAnswer.replace(/"/g, '\\"')}"`;
+  if (ambiguousMode) {
+    // Execute the Python script for ambiguous comparison
+    const scriptPath = path.join(__dirname, 'answer_checker.py');
+    const command = `python3 "${scriptPath}" "${userAnswer.replace(/"/g, '\\"')}" "${correctAnswer.replace(/"/g, '\\"')}"`;
 
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Execution error: ${error.message}`);
-      return res.status(500).json({ error: 'Error executing script.', details: error.message });
-    }
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Execution error: ${error.message}`);
+        return res.status(500).json({ error: 'Error executing script.', details: error.message });
+      }
 
-    if (stderr) {
-      console.error(`Script stderr: ${stderr}`);
-      return res.status(500).json({ error: 'Script error.', details: stderr });
-    }
+      if (stderr) {
+        console.error(`Script stderr: ${stderr}`);
+        return res.status(500).json({ error: 'Script error.', details: stderr });
+      }
 
-    const result = stdout.trim();
+      const result = stdout.trim();
 
-    if (result === '1') {
-      return res.json({ isCorrect: true });
-    } else if (result === '0') {
-      return res.json({ isCorrect: false });
-    } else {
-      return res.status(500).json({ error: 'Unexpected script output.', details: result });
-    }
-  });
+      if (result === '1') {
+        return res.json({ isCorrect: true });
+      } else if (result === '0') {
+        return res.json({ isCorrect: false });
+      } else {
+        return res.status(500).json({ error: 'Unexpected script output.', details: result });
+      }
+    });
+  } else {
+    // For non-ambiguous mode, do an exact comparison
+    const isCorrect = userAnswer.trim() === correctAnswer.trim();
+    res.json({ isCorrect });
+  }
 });
 
 // Endpoint to get all posts
-app.get('/api/posts', (req, res) => {
-  res.json(postsData);
+app.get('/api/posts', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT * FROM posts');
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Endpoint to add a new post
-app.post('/api/posts', (req, res) => {
-  const { question, answer, address, time, ambiguousMode, llmBreakable } = req.body;
+app.post('/api/posts', async (req, res) => {
+  const { question, answer, address, time, ambiguous_mode, llm_breakable } = req.body;
 
   if (!question || !answer || !address || !time) {
     return res.status(400).json({ message: 'question, answer, address, and time are required.' });
   }
 
-  const newPost = {
-    id: postsData.length + 1,
-    question,
-    answer,
-    address,
-    time,
-    visible: false,
-    ambiguousMode: ambiguousMode || false,
-    llmBreakable: llmBreakable || false
-  };
-
-  postsData.push(newPost);
-  res.status(201).json(newPost);
+  try {
+    const { rows } = await pool.query(
+      'INSERT INTO posts (question, answer, address, time, visible, ambiguous_mode, llm_breakable) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [question, answer, address, time, false, ambiguous_mode || false, llm_breakable || false]
+    );
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error('Error adding new post:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Endpoint to update a post's visibility based on answer correctness
-app.post('/api/update-visibility', (req, res) => {
+app.post('/api/update-visibility', async (req, res) => {
   const { postId, isCorrect } = req.body;
 
-  const post = postsData.find(p => p.id === postId);
+  try {
+    const { rows } = await pool.query(
+      'UPDATE posts SET visible = $1 WHERE id = $2 RETURNING *',
+      [isCorrect, postId]
+    );
 
-  if (!post) {
-    return res.status(404).json({ message: 'Post not found.' });
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Post not found.' });
+    }
+
+    res.json({ message: 'Visibility updated successfully.', post: rows[0] });
+  } catch (error) {
+    console.error('Error updating post visibility:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  post.visible = isCorrect;
-  res.json({ message: 'Visibility updated successfully.', post });
 });
 
 // Start the server

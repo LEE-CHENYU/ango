@@ -7,8 +7,8 @@ function Form({ onAddPost }) {
   const [answer, setAnswer] = useState('');
   const [address, setAddress] = useState('');
   const [time, setTime] = useState('');
-  const [ambiguousMode, setAmbiguousMode] = useState(false);
-  const [llmBreakable, setLlmBreakable] = useState(false);
+  const [ambiguous_mode, setAmbiguous_mode] = useState(false);
+  const [llm_breakable, setLlm_breakable] = useState(false);
   const [breakabilityIcon, setBreakabilityIcon] = useState('');
   const [error, setError] = useState('');
 
@@ -20,15 +20,15 @@ function Form({ onAddPost }) {
         setError('All fields are required. Please fill in all the information.');
         return;
       }
-      await onAddPost({ question, answer, address, time, llmBreakable, ambiguousMode });
+      await onAddPost({ question, answer, address, time, llm_breakable, ambiguous_mode });
       setFormVisible(false);
       // Reset form fields
       setQuestion('');
       setAnswer('');
       setAddress('');
       setTime('');
-      setAmbiguousMode(false);
-      setLlmBreakable(false);
+      setAmbiguous_mode(false);
+      setLlm_breakable(false);
       setBreakabilityIcon('');
       setError('');
     } else {
@@ -51,10 +51,10 @@ function Form({ onAddPost }) {
         const result = await response.json();
         if (result.isBreakable) {
           setBreakabilityIcon('✅');
-          setLlmBreakable(true);
+          setLlm_breakable(true);
         } else {
           setBreakabilityIcon('❌');
-          setLlmBreakable(false);
+          setLlm_breakable(false);
         }
       } catch (error) {
         console.error('Error checking answer breakability:', error);
@@ -117,8 +117,8 @@ function Form({ onAddPost }) {
                 <input
                   type="checkbox"
                   id="ambiguous-mode"
-                  checked={ambiguousMode}
-                  onChange={(e) => setAmbiguousMode(e.target.checked)}
+                  checked={ambiguous_mode}
+                  onChange={(e) => setAmbiguous_mode(e.target.checked)}
                   style={styles.checkboxStyle}
                 />
                 <label htmlFor="ambiguous-mode" style={styles.checkboxLabelStyle}>

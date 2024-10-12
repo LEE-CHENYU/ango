@@ -9,7 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "keywords": ["ango", "gathering", "cryptic", "web-app"],
+  "keywords": [
+    "ango",
+    "gathering",
+    "cryptic",
+    "web-app"
+  ],
   "author": "Chenyu Li",
   "license": "MIT",
   "dependencies": {

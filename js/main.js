@@ -9,7 +9,7 @@ function PostItem({ post }) {
     const answerInput = e.target.value.toLowerCase();
     setUserAnswer(answerInput);
 
-    const isAmbiguousMode = post.ambiguousMode;
+    const isAmbiguousMode = post.ambiguous_mode;
 
     if (isAmbiguousMode) {
       try {
