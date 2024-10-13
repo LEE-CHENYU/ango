@@ -11,7 +11,7 @@ function PostItem({ post }) {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:8000/api/check-answer-ambiguity', {
+      const response = await fetch('http://localhost:8080/api/check-answer-ambiguity', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

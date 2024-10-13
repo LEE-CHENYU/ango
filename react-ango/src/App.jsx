@@ -9,7 +9,7 @@ function App() {
 
   const handleAddPost = async (postData) => {
     try {
-      const response = await fetch('http://localhost:8000/api/posts', {
+      const response = await fetch('http://localhost:8080/api/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

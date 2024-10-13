@@ -41,7 +41,7 @@ function Form({ onAddPost }) {
     setError('');
     if (question.trim()) {
       try {
-        const response = await fetch('http://localhost:8000/api/check-answer-breakability', {
+        const response = await fetch('http://localhost:8080/api/check-answer-breakability', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -13,7 +13,7 @@ function PostItem({ post }) {
 
     if (isAmbiguousMode) {
       try {
-        const response = await fetch('http://localhost:8000/check-answer-ambiguity', {
+        const response = await fetch('http://localhost:8080/check-answer-ambiguity', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

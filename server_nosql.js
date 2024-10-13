@@ -6,7 +6,7 @@ const { exec } = require('child_process');
 
 // Initialize Express app
 const app = express();
-const PORT = 8000;
+const PORT = 8080;
 
 // CORS Configuration
 app.use(cors({

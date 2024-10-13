@@ -5,7 +5,7 @@ import { FiRefreshCw } from 'react-icons/fi';
 function PostList({ posts, setPosts }) {
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/posts'); // Ensure the URL is correct
+      const response = await fetch('http://localhost:8080/api/posts'); // Ensure the URL is correct
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
