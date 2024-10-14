@@ -20,7 +20,7 @@ function Header() {
   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
         `}
       </pre>
-      <h1 style={styles.heading}>WELCOME! CREATE AN ANGO TO MATCH</h1>
+      <h2 style={styles.subheading}>solve, create, & match with ANGO!</h2>
     </div>
   );
 }
@@ -36,9 +36,10 @@ const styles = {
     fontSize: '12px',
     whiteSpace: 'pre',
   },
-  heading: {
-    fontSize: '24px',
-    marginTop: '20px',
+  subheading: {
+    fontSize: '18px',
+    marginTop: '10px',
+    fontFamily: 'Courier New, monospace',
   }
 };
 
