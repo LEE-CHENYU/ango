@@ -5,6 +5,7 @@ const path = require('path');
 const { exec } = require('child_process');
 const { Pool } = require('pg');
 const dotenv = require('dotenv');
+const { spawn } = require('child_process');
 
 // Load environment variables
 dotenv.config();
@@ -189,6 +190,52 @@ app.post('/api/update-visibility', async (req, res) => {
   } catch (error) {
     console.error('Error updating post visibility:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint to rank posts based on user input
+app.post('/api/rank-posts', async (req, res) => {
+  const { input, posts } = req.body;
+
+  if (!input || !posts || !Array.isArray(posts)) {
+    return res.status(400).json({ message: 'Invalid input or posts data.' });
+  }
+
+  try {
+    const pythonProcess = spawn('python3', ['post_ranker.py']);
+    let result = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      result += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      console.error(`Python Error: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+      try {
+        const parsedResult = JSON.parse(result);
+        res.json(parsedResult);
+      } catch (error) {
+        console.error('Error parsing Python script output:', error);
+        res.status(500).json({ 
+          ranked_posts: posts, 
+          explanation: 'Error parsing ranking result.', 
+          success: false 
+        });
+      }
+    });
+
+    pythonProcess.stdin.write(JSON.stringify({ input, posts }));
+    pythonProcess.stdin.end();
+  } catch (error) {
+    console.error('Error ranking posts:', error);
+    res.status(500).json({ 
+      ranked_posts: posts, 
+      explanation: 'Internal server error', 
+      success: false 
+    });
   }
 });
 
