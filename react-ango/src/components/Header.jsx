@@ -20,7 +20,7 @@ function Header() {
   ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
         `}
       </pre>
-      <h2 style={styles.subheading}>solve, create, & match with ANGO!</h2>
+      <h2 style={styles.subheading}>solve, match, & create with ANGO!</h2>
     </div>
   );
 }
