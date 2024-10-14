@@ -14,8 +14,18 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 
 // CORS Configuration
+
+// Define Allowed Origins
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'https://ango-438501.web.app' // Your Firebase Hosting URL
+  // Add more origins if needed
+];
+
+// CORS Middleware Configuration
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3002'], // Adjust if frontend runs on a different origin
+  origin: allowedOrigins,
   methods: ['GET', 'POST'],
   credentials: true
 }));

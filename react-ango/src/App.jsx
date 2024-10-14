@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import Header from './components/Header.jsx';
 import Form from './components/Form.jsx';
 import PostList from './components/PostList.jsx';
+import API_URL from './config';
 
 function App() {
   const [posts, setPosts] = useState([]);
 
   const handleAddPost = async (postData) => {
     try {
-      const response = await fetch('http://localhost:8080/api/posts', {
+      const response = await fetch(`${API_URL}/api/posts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

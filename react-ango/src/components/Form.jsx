@@ -1,5 +1,6 @@
 // src/components/Form.jsx
 import React, { useState } from 'react';
+import API_URL from '../config';
 
 function Form({ onAddPost }) {
   const [formVisible, setFormVisible] = useState(false);
@@ -41,7 +42,7 @@ function Form({ onAddPost }) {
     setError('');
     if (question.trim()) {
       try {
-        const response = await fetch('http://localhost:8080/api/check-answer-breakability', {
+        const response = await fetch(`${API_URL}/api/check-answer-breakability`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

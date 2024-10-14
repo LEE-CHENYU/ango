@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import API_URL from '../react-ango/src/config';
 
 function PostItem({ post }) {
   const [userAnswer, setUserAnswer] = useState('');
@@ -13,7 +14,7 @@ function PostItem({ post }) {
 
     if (isAmbiguousMode) {
       try {
-        const response = await fetch('http://localhost:8080/check-answer-ambiguity', {
+        const response = await fetch(`${API_URL}/check-answer-ambiguity`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

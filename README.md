@@ -53,7 +53,7 @@ ANGO Gathering is a web application that allows users to create and participate 
 
    b. Using Docker:
    ```
-   docker run -p 8080:8000 gcr.io/ango-438501/ango-backend
+   docker run -p 8080:8080 gcr.io/ango-438501/ango-backend
    ```
 
 6. Start the frontend development server:

@@ -1,5 +1,6 @@
 // src/components/PostItem.jsx
 import React, { useState } from 'react';
+import API_URL from '../config';
 
 function PostItem({ post }) {
   const [userAnswer, setUserAnswer] = useState('');
@@ -11,7 +12,7 @@ function PostItem({ post }) {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('http://localhost:8080/api/check-answer-ambiguity', {
+      const response = await fetch(`${API_URL}/api/check-answer-ambiguity`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
