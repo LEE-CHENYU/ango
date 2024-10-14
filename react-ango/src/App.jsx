@@ -46,12 +46,15 @@ const styles = {
     backgroundColor: '#f4f4f9',
     color: '#333',
     margin: 0,
-    padding: '20px'
+    padding: '20px',
+    maxWidth: '100%',
+    boxSizing: 'border-box',
   },
   headerContainer: {
     display: 'flex',
     justifyContent: 'center',
-    width: '100%'
+    width: '100%',
+    marginBottom: '20px',
   }
 };
 
