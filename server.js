@@ -134,8 +134,8 @@ app.post('/api/check-answer-ambiguity', async (req, res) => {
       }
     });
   } else {
-    // For non-ambiguous mode, do an exact comparison
-    const isCorrect = userAnswer.trim() === correctAnswer.trim();
+    // For non-ambiguous mode, do a case-insensitive comparison
+    const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
     res.json({ isCorrect });
   }
 });
