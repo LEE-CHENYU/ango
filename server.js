@@ -19,8 +19,8 @@ const PORT = process.env.PORT || 8080;
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3002',
-  'https://ango-438501.web.app' // Your Firebase Hosting URL
-  // Add more origins if needed
+  'https://ango-438501.web.app',
+  'https://ango.space'
 ];
 
 // CORS Middleware Configuration
