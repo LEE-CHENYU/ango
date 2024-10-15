@@ -7,6 +7,7 @@ function PostList({ posts, setPosts }) {
   const [searchInput, setSearchInput] = useState('');
   const [rankedPosts, setRankedPosts] = useState([]);
   const [noRelevantResults, setNoRelevantResults] = useState(false);
+  const [breakCounts, setBreakCounts] = useState({});
 
   const fetchPosts = async () => {
     try {
@@ -23,6 +24,7 @@ function PostList({ posts, setPosts }) {
 
   useEffect(() => {
     fetchPosts();
+    fetchBreakCounts();
   }, []);
 
   // Update rankedPosts whenever posts change
@@ -63,6 +65,34 @@ function PostList({ posts, setPosts }) {
     setSearchInput(e.target.value);
   };
 
+  const fetchBreakCounts = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/break-counts`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      setBreakCounts(data);
+    } catch (error) {
+      console.error('Error fetching break counts:', error);
+    }
+  };
+
+  const updateBreakCount = async (postId) => {
+    try {
+      const response = await fetch(`${API_URL}/api/update-break-count/${postId}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      const updatedCounts = await response.json();
+      setBreakCounts(updatedCounts);
+    } catch (error) {
+      console.error('Error updating break count:', error);
+    }
+  };
+
   return (
     <div>
       <div style={styles.controlsContainer}>
@@ -92,8 +122,13 @@ function PostList({ posts, setPosts }) {
         {rankedPosts.length === 0 ? (
           <p>No posts available.</p>
         ) : (
-          rankedPosts.map(post => (
-            <PostItem key={post.id} post={post} />
+          rankedPosts.map((post) => (
+            <PostItem 
+              key={post.id} 
+              post={post} 
+              breakCount={breakCounts[post.id] || 0}
+              onQuestionBroken={updateBreakCount}
+            />
           ))
         )}
       </div>

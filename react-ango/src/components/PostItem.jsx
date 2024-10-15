@@ -1,8 +1,9 @@
 // src/components/PostItem.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import API_URL from '../config';
+import posthog from 'posthog-js';
 
-function PostItem({ post }) {
+function PostItem({ post, breakCount, onQuestionBroken }) {
   const [userAnswer, setUserAnswer] = useState('');
   const [isCorrect, setIsCorrect] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -20,21 +21,25 @@ function PostItem({ post }) {
         body: JSON.stringify({ 
           correctAnswer: post.answer, 
           userAnswer: userAnswer,
-          ambiguousMode: post.ambiguous_mode // Assuming the post object has this property
+          ambiguousMode: post.ambiguous_mode
         })
       });
 
       if (!response.ok) {
-        console.error(`Server Error: ${response.status} - ${response.statusText}`);
-        const errorBody = await response.text();
-        console.error(`Error body: ${errorBody}`);
-        throw new Error(`Server Error: ${response.status} - ${response.statusText}. Details: ${errorBody}`);
+        throw new Error(`Server Error: ${response.status} - ${response.statusText}`);
       }
 
       const result = await response.json();
 
       if (result.isCorrect) {
         setIsCorrect(true);
+        // Capture event for breaking the question
+        posthog.capture('question_broken', { 
+          postId: post.id,
+          question: post.question
+        });
+        // Call the callback to update the break count
+        onQuestionBroken(post.id);
       } else {
         setIsCorrect(false);
       }
@@ -45,11 +50,23 @@ function PostItem({ post }) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isCorrect) {
+      // Capture event for viewing post contents
+      posthog.capture('post_contents_viewed', { 
+        postId: post.id,
+        question: post.question
+      });
+    }
+  }, [isCorrect]);
+
   return (
     <div style={styles.postContainer}>
       {post.question} {isCorrect ? '✅' : isCorrect === false ? '❌' : ''}
       {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
       {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>}
+      <span style={styles.breakCount}>Broken: {breakCount}</span>
       
       <div style={styles.answerSection}>
         <input
@@ -120,6 +137,11 @@ const styles = {
   errorText: {
     color: 'red',
     marginTop: '10px'
+  },
+  breakCount: {
+    fontSize: '0.8em',
+    color: '#666',
+    marginLeft: '10px',
   }
 };
 

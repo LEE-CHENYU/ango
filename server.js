@@ -239,6 +239,59 @@ app.post('/api/rank-posts', async (req, res) => {
   }
 });
 
+// Endpoint to get all break counts
+app.get('/api/break-counts', async (req, res) => {
+  try {
+    const { rows } = await pool.query('SELECT post_id, break_count FROM post_break_counts');
+    const breakCounts = rows.reduce((acc, row) => {
+      acc[row.post_id] = row.break_count;
+      return acc;
+    }, {});
+    res.json(breakCounts);
+  } catch (error) {
+    console.error('Error fetching break counts:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Endpoint to update a post's break count
+app.post('/api/update-break-count/:postId', async (req, res) => {
+  const postId = parseInt(req.params.postId);
+  try {
+    // Check if the post break count record exists
+    const { rows: existingRows } = await pool.query(
+      'SELECT * FROM post_break_counts WHERE post_id = $1',
+      [postId]
+    );
+
+    if (existingRows.length === 0) {
+      // If not, insert a new record
+      await pool.query(
+        'INSERT INTO post_break_counts (post_id, break_count) VALUES ($1, 1)',
+        [postId]
+      );
+    } else {
+      // If it exists, update the break count
+      await pool.query(
+        'UPDATE post_break_counts SET break_count = break_count + 1 WHERE post_id = $1',
+        [postId]
+      );
+    }
+
+    // Fetch the updated break counts
+    const { rows } = await pool.query('SELECT post_id, break_count FROM post_break_counts');
+    const updatedBreakCounts = rows.reduce((acc, row) => {
+      acc[row.post_id] = row.break_count;
+      return acc;
+    }, {});
+
+    res.json(updatedBreakCounts);
+  } catch (error) {
+    console.error('Error updating break count:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

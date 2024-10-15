@@ -1,14 +1,18 @@
 // src/App.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import posthog from 'posthog-js';
 import Header from './components/Header.jsx';
 import Form from './components/Form.jsx';
 import PostList from './components/PostList.jsx';
 import InfoPage from './components/InfoPage.jsx';
 import API_URL from './config';
+import usePageViews from './usePageViews';
 
 function App() {
   const [posts, setPosts] = useState([]);
+
+  usePageViews();
 
   const handleAddPost = async (postData) => {
     try {
@@ -23,6 +27,8 @@ function App() {
         const newPost = await response.json();
         console.log('Post added successfully');
         setPosts(prevPosts => [newPost, ...prevPosts]);
+        // Capture event for adding a post
+        posthog.capture('post_added', { postId: newPost.id });
       } else {
         console.error('Failed to add post');
       }
@@ -32,25 +38,23 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="App" style={styles.appContainer}>
-        <div style={styles.headerContainer}>
-          <Header />
-        </div>
-        <Routes>
-          <Route path="/" element={
-            <>
-              <Form onAddPost={handleAddPost} />
-              <PostList posts={posts} setPosts={setPosts} />
-            </>
-          } />
-          <Route path="/info" element={<InfoPage />} />
-        </Routes>
-        <div style={styles.infoLinkContainer}>
-          <a href="/info" style={styles.infoLink}>info</a>
-        </div>
+    <div className="App" style={styles.appContainer}>
+      <div style={styles.headerContainer}>
+        <Header />
       </div>
-    </Router>
+      <Routes>
+        <Route path="/" element={
+          <>
+            <Form onAddPost={handleAddPost} />
+            <PostList posts={posts} setPosts={setPosts} />
+          </>
+        } />
+        <Route path="/info" element={<InfoPage />} />
+      </Routes>
+      <div style={styles.infoLinkContainer}>
+        <a href="/info" style={styles.infoLink}>info</a>
+      </div>
+    </div>
   );
 }
 
