@@ -10,6 +10,7 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
   const [error, setError] = useState('');
   const [currentRatio, setCurrentRatio] = useState(ratio);
   const [resultMessage, setResultMessage] = useState(''); // New state for the message
+  const [showHardnessEmoji, setShowHardnessEmoji] = useState(true);
 
   const getHardnessEmoji = (ratioValue) => {
     if (attempts === 0) return '😐'; // No attempts yet
@@ -23,6 +24,7 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
   const handleCheckAnswer = async () => {
     setIsLoading(true);
     setError('');
+    setShowHardnessEmoji(false); // Hide hardness emoji when checking answer
     try {
       const response = await fetch(`${API_URL}/api/check-answer-ambiguity`, {
         method: 'POST',
@@ -90,15 +92,18 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
 
   return (
     <div style={styles.postContainer}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
+      <div style={styles.headerContainer}>
+        <div style={styles.questionContainer}>
           {post.question}
           {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
-          {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>} 
-          <span style={styles.hardnessEmoji}>{getHardnessEmoji(currentRatio)}</span>
+          {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>}
         </div>
-        <div>
-          {isCorrect ? '✅' : isCorrect === false ? '❌' : ''}
+        <div style={styles.emojiContainer}>
+          {showHardnessEmoji ? (
+            <span style={styles.hardnessEmoji}>{getHardnessEmoji(currentRatio)}</span>
+          ) : (
+            <span>{isCorrect ? '✅' : isCorrect === false ? '❌' : ''}</span>
+          )}
         </div>
       </div>
       
@@ -119,9 +124,6 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
         </button>
       </div>
 
-      {/* Display the result message */}
-      {resultMessage && <p style={styles.resultMessage}>{resultMessage}</p>}
-      
       {error && <p style={styles.errorText}>{error}</p>}
       
       {isCorrect && (
@@ -145,9 +147,21 @@ const styles = {
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.05)',
     backgroundColor: '#fff'
   },
+  headerContainer: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '10px',
+  },
+  questionContainer: {
+    flex: 1,
+  },
+  emojiContainer: {
+    minWidth: '30px',
+    textAlign: 'right',
+  },
   hardnessEmoji: {
     fontSize: '1.2em',
-    marginLeft: '10px',
   },
   answerSection: {
     display: 'flex',
@@ -178,11 +192,6 @@ const styles = {
   errorText: {
     color: 'red',
     marginTop: '10px'
-  },
-  resultMessage: {
-    color: 'green',
-    marginTop: '10px',
-    fontWeight: 'bold'
   }
 };
 
