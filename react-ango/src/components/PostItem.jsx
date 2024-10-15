@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import API_URL from '../config';
 import posthog from 'posthog-js';
 
-function PostItem({ post, breakCount, onQuestionBroken }) {
+function PostItem({ post, breakCount, attempts, onQuestionBroken }) {
   const [userAnswer, setUserAnswer] = useState('');
   const [isCorrect, setIsCorrect] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,12 +61,32 @@ function PostItem({ post, breakCount, onQuestionBroken }) {
     }
   }, [isCorrect]);
 
+  const getHardnessEmoji = (breakCount, attempts) => {
+    if (attempts === 0) {
+      console.log(`Post ${post.id} - No attempts yet`);
+      return '😐';
+    }
+    const ratio = breakCount / attempts;
+    console.log(`Post ${post.id} - Ratio: ${ratio.toFixed(2)}, Breaks: ${breakCount}, Attempts: ${attempts}`);
+    if (ratio > 0.66) return '🤣';
+    if (ratio > 0.33) return '😅';
+    if (ratio > 0.1) return '😰';
+    return '😱';
+  };
+
   return (
     <div style={styles.postContainer}>
-      {post.question} {isCorrect ? '✅' : isCorrect === false ? '❌' : ''}
-      {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
-      {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>}
-      <span style={styles.breakCount}>Broken: {breakCount}</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          {post.question}
+          {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
+          {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>} 
+          <span style={styles.hardnessEmoji}>{getHardnessEmoji(breakCount, attempts)}</span>
+        </div>
+        <div>
+          {isCorrect ? '✅' : isCorrect === false ? '❌' : ''}
+        </div>
+      </div>
       
       <div style={styles.answerSection}>
         <input
@@ -138,7 +158,7 @@ const styles = {
     color: 'red',
     marginTop: '10px'
   },
-  breakCount: {
+  hardnessEmoji: {
     fontSize: '0.8em',
     color: '#666',
     marginLeft: '10px',

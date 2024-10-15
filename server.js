@@ -267,21 +267,21 @@ app.post('/api/update-break-count/:postId', async (req, res) => {
     if (existingRows.length === 0) {
       // If not, insert a new record
       await pool.query(
-        'INSERT INTO post_break_counts (post_id, break_count) VALUES ($1, 1)',
+        'INSERT INTO post_break_counts (post_id, break_count, attempts) VALUES ($1, 1, 1)',
         [postId]
       );
     } else {
-      // If it exists, update the break count
+      // If it exists, update the break count and attempts
       await pool.query(
-        'UPDATE post_break_counts SET break_count = break_count + 1 WHERE post_id = $1',
+        'UPDATE post_break_counts SET break_count = break_count + 1, attempts = attempts + 1 WHERE post_id = $1',
         [postId]
       );
     }
 
-    // Fetch the updated break counts
-    const { rows } = await pool.query('SELECT post_id, break_count FROM post_break_counts');
+    // Fetch the updated break counts and attempts
+    const { rows } = await pool.query('SELECT post_id, break_count, attempts FROM post_break_counts');
     const updatedBreakCounts = rows.reduce((acc, row) => {
-      acc[row.post_id] = row.break_count;
+      acc[row.post_id] = { breakCount: row.break_count, attempts: row.attempts };
       return acc;
     }, {});
 

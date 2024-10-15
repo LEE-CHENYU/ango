@@ -93,6 +93,15 @@ function PostList({ posts, setPosts }) {
     }
   };
 
+  const getHardnessEmoji = (breakCount, attempts) => {
+    if (attempts === 0) return '😐'; // No attempts yet
+    const ratio = breakCount / attempts;
+    if (ratio > 0.66) return '🤣'; // Easy
+    if (ratio > 0.33) return '😅'; // Medium
+    if (ratio > 0.1) return '😰'; // Hard
+    return '😱'; // Extremely hard
+  };
+
   return (
     <div>
       <div style={styles.controlsContainer}>
@@ -126,7 +135,8 @@ function PostList({ posts, setPosts }) {
             <PostItem 
               key={post.id} 
               post={post} 
-              breakCount={breakCounts[post.id] || 0}
+              breakCount={breakCounts[post.id]?.breakCount || 0}
+              attempts={breakCounts[post.id]?.attempts || 0}
               onQuestionBroken={updateBreakCount}
             />
           ))

@@ -8,3 +8,9 @@ CREATE TABLE IF NOT EXISTS posts (
     ambiguous_mode BOOLEAN DEFAULT FALSE,
     llm_breakable BOOLEAN DEFAULT FALSE
 );
+
+CREATE TABLE IF NOT EXISTS post_break_counts (
+    post_id INTEGER PRIMARY KEY REFERENCES posts(id),
+    break_count INTEGER DEFAULT 0,
+    attempts INTEGER DEFAULT 0
+);
