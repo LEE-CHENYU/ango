@@ -86,18 +86,27 @@ function PostList({ posts, setPosts }) {
     setSearchInput(e.target.value);
   };
 
-  const updateBreakCount = async (postId) => {
+  /**
+   * Updated updateBreakCount to accept isCorrect flag
+   */
+  const updateBreakCount = async (postId, isCorrect) => {
     try {
       const response = await fetch(`${API_URL}/api/update-break-count/${postId}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ isCorrect }) // Pass the isCorrect flag correctly
       });
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
+
       const updatedCounts = await response.json();
       setBreakCounts(updatedCounts);
 
-      // Update ratios for all posts
+      // Recalculate ratios after update
       const updatedRatios = Object.entries(updatedCounts).reduce((acc, [id, counts]) => {
         acc[id] = counts.attempts > 0 ? counts.breakCount / counts.attempts : 0;
         return acc;
@@ -141,7 +150,7 @@ function PostList({ posts, setPosts }) {
               breakCount={breakCounts[post.id]?.breakCount || 0}
               attempts={breakCounts[post.id]?.attempts || 0}
               ratio={postRatios[post.id] || 0}
-              onQuestionBroken={updateBreakCount}
+              onQuestionBroken={updateBreakCount} // Now expects (postId, isCorrect)
             />
           ))
         )}

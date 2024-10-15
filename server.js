@@ -105,7 +105,10 @@ app.post('/api/check-answer-ambiguity', async (req, res) => {
 
   if (!correctAnswer || !userAnswer) {
     console.error('Missing input:', { correctAnswer, userAnswer });
-    return res.status(400).json({ message: 'Both userAnswer and correctAnswer are required.', details: { correctAnswer, userAnswer } });
+    return res.status(400).json({ 
+      message: 'Both userAnswer and correctAnswer are required.', 
+      details: { correctAnswer, userAnswer } 
+    });
   }
 
   if (ambiguousMode) {
@@ -116,28 +119,46 @@ app.post('/api/check-answer-ambiguity', async (req, res) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         console.error(`Execution error: ${error.message}`);
-        return res.status(500).json({ error: 'Error executing script.', details: error.message });
+        return res.status(500).json({ 
+          error: 'Error executing script.', 
+          details: error.message 
+        });
       }
 
       if (stderr) {
         console.error(`Script stderr: ${stderr}`);
-        return res.status(500).json({ error: 'Script error.', details: stderr });
+        return res.status(500).json({ 
+          error: 'Script error.', 
+          details: stderr 
+        });
       }
 
       const result = stdout.trim();
 
       if (result === '1') {
-        return res.json({ isCorrect: true });
+        return res.json({ 
+          isCorrect: true,
+          message: 'Your answer is correct!' // Success message
+        });
       } else if (result === '0') {
-        return res.json({ isCorrect: false });
+        return res.json({ 
+          isCorrect: false,
+          message: 'Your answer is incorrect. Please try again.' // Failure message
+        });
       } else {
-        return res.status(500).json({ error: 'Unexpected script output.', details: result });
+        return res.status(500).json({ 
+          error: 'Unexpected script output.', 
+          details: result 
+        });
       }
     });
   } else {
     // For non-ambiguous mode, do a case-insensitive comparison
     const isCorrect = userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase();
-    res.json({ isCorrect });
+    const message = isCorrect 
+      ? 'Your answer is correct!' 
+      : 'Your answer is incorrect. Please try again.';
+    res.json({ isCorrect, message });
   }
 });
 
@@ -254,9 +275,15 @@ app.get('/api/break-counts', async (req, res) => {
   }
 });
 
-// Endpoint to update a post's break count
+// Endpoint to update a post's break count based on answer correctness
 app.post('/api/update-break-count/:postId', async (req, res) => {
   const postId = parseInt(req.params.postId);
+  const { isCorrect } = req.body; // Receive isCorrect from request body
+
+  if (typeof isCorrect !== 'boolean') {
+    return res.status(400).json({ error: 'isCorrect must be a boolean value.' });
+  }
+
   try {
     // Check if the post break count record exists
     const { rows: existingRows } = await pool.query(
@@ -265,17 +292,27 @@ app.post('/api/update-break-count/:postId', async (req, res) => {
     );
 
     if (existingRows.length === 0) {
-      // If not, insert a new record
+      // If not, insert a new record with appropriate break_count
+      const initialBreakCount = isCorrect ? 1 : 0;
+      const initialAttempts = 1;
       await pool.query(
-        'INSERT INTO post_break_counts (post_id, break_count, attempts) VALUES ($1, 1, 1)',
-        [postId]
+        'INSERT INTO post_break_counts (post_id, break_count, attempts) VALUES ($1, $2, $3)',
+        [postId, initialBreakCount, initialAttempts]
       );
     } else {
-      // If it exists, update the break count and attempts
-      await pool.query(
-        'UPDATE post_break_counts SET break_count = break_count + 1, attempts = attempts + 1 WHERE post_id = $1',
-        [postId]
-      );
+      if (isCorrect) {
+        // If correct, increment both break_count and attempts
+        await pool.query(
+          'UPDATE post_break_counts SET break_count = break_count + 1, attempts = attempts + 1 WHERE post_id = $1',
+          [postId]
+        );
+      } else {
+        // If incorrect, only increment attempts
+        await pool.query(
+          'UPDATE post_break_counts SET attempts = attempts + 1 WHERE post_id = $1',
+          [postId]
+        );
+      }
     }
 
     // Fetch the updated break counts and attempts

@@ -9,6 +9,7 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentRatio, setCurrentRatio] = useState(ratio);
+  const [resultMessage, setResultMessage] = useState(''); // New state for the message
 
   const getHardnessEmoji = (ratioValue) => {
     if (attempts === 0) return '😐'; // No attempts yet
@@ -36,7 +37,8 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
       });
 
       if (!response.ok) {
-        throw new Error(`Server Error: ${response.status} - ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Server Error: ${response.status} - ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -47,20 +49,22 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
           postId: post.id,
           question: post.question
         });
-        onQuestionBroken(post.id);
         // Update the ratio locally
-        setCurrentRatio((prevRatio) => {
-          const newBreakCount = breakCount + 1;
-          const newAttempts = attempts + 1;
-          return newBreakCount / newAttempts;
-        });
+        const newBreakCount = breakCount + 1;
+        const newAttempts = attempts + 1;
+        const newRatio = newBreakCount / newAttempts;
+        setCurrentRatio(newRatio);
+        // Update the backend with isCorrect and message
+        await onQuestionBroken(post.id, true);
       } else {
         setIsCorrect(false);
         // Update attempts locally
-        setCurrentRatio((prevRatio) => {
-          const newAttempts = attempts + 1;
-          return breakCount / newAttempts;
-        });
+        const newBreakCount = breakCount;
+        const newAttempts = attempts + 1;
+        const newRatio = newBreakCount / newAttempts;
+        setCurrentRatio(newRatio);
+        // Update the backend with isCorrect and message
+        await onQuestionBroken(post.id, false);
       }
     } catch (err) {
       console.error('Error checking answer:', err);
@@ -115,6 +119,9 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
         </button>
       </div>
 
+      {/* Display the result message */}
+      {resultMessage && <p style={styles.resultMessage}>{resultMessage}</p>}
+      
       {error && <p style={styles.errorText}>{error}</p>}
       
       {isCorrect && (
@@ -171,6 +178,11 @@ const styles = {
   errorText: {
     color: 'red',
     marginTop: '10px'
+  },
+  resultMessage: {
+    color: 'green',
+    marginTop: '10px',
+    fontWeight: 'bold'
   }
 };
 
