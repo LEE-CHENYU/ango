@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import PostItem from './PostItem.jsx';
+import PostItem from './PostItem';
 import { FiRefreshCw, FiSearch } from 'react-icons/fi';
 import API_URL from '../config';
 
@@ -8,6 +8,7 @@ function PostList({ posts, setPosts }) {
   const [rankedPosts, setRankedPosts] = useState([]);
   const [noRelevantResults, setNoRelevantResults] = useState(false);
   const [breakCounts, setBreakCounts] = useState({});
+  const [postRatios, setPostRatios] = useState({});
 
   const fetchPosts = async () => {
     try {
@@ -19,6 +20,26 @@ function PostList({ posts, setPosts }) {
       setPosts(data);
     } catch (error) {
       console.error('Error fetching posts:', error);
+    }
+  };
+
+  const fetchBreakCounts = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/break-counts`);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      setBreakCounts(data);
+
+      // Calculate ratios
+      const ratios = Object.entries(data).reduce((acc, [postId, counts]) => {
+        acc[postId] = counts.attempts > 0 ? counts.breakCount / counts.attempts : 0;
+        return acc;
+      }, {});
+      setPostRatios(ratios);
+    } catch (error) {
+      console.error('Error fetching break counts:', error);
     }
   };
 
@@ -65,19 +86,6 @@ function PostList({ posts, setPosts }) {
     setSearchInput(e.target.value);
   };
 
-  const fetchBreakCounts = async () => {
-    try {
-      const response = await fetch(`${API_URL}/api/break-counts`);
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      setBreakCounts(data);
-    } catch (error) {
-      console.error('Error fetching break counts:', error);
-    }
-  };
-
   const updateBreakCount = async (postId) => {
     try {
       const response = await fetch(`${API_URL}/api/update-break-count/${postId}`, {
@@ -88,28 +96,23 @@ function PostList({ posts, setPosts }) {
       }
       const updatedCounts = await response.json();
       setBreakCounts(updatedCounts);
+
+      // Update ratios for all posts
+      const updatedRatios = Object.entries(updatedCounts).reduce((acc, [id, counts]) => {
+        acc[id] = counts.attempts > 0 ? counts.breakCount / counts.attempts : 0;
+        return acc;
+      }, {});
+      setPostRatios(updatedRatios);
     } catch (error) {
       console.error('Error updating break count:', error);
     }
-  };
-
-  const getHardnessEmoji = (breakCount, attempts) => {
-    if (attempts === 0) return '😐'; // No attempts yet
-    const ratio = breakCount / attempts;
-    if (ratio > 0.66) return '🤣'; // Easy
-    if (ratio > 0.33) return '😅'; // Medium
-    if (ratio > 0.1) return '😰'; // Hard
-    return '😱'; // Extremely hard
   };
 
   return (
     <div>
       <div style={styles.controlsContainer}>
         <div style={styles.refreshIconContainer}>
-          <FiRefreshCw
-            onClick={fetchPosts}
-            style={styles.refreshIcon}
-          />
+          <FiRefreshCw onClick={fetchPosts} style={styles.refreshIcon} />
         </div>
         <input
           type="text"
@@ -132,11 +135,12 @@ function PostList({ posts, setPosts }) {
           <p>No posts available.</p>
         ) : (
           rankedPosts.map((post) => (
-            <PostItem 
-              key={post.id} 
-              post={post} 
+            <PostItem
+              key={post.id}
+              post={post}
               breakCount={breakCounts[post.id]?.breakCount || 0}
               attempts={breakCounts[post.id]?.attempts || 0}
+              ratio={postRatios[post.id] || 0}
               onQuestionBroken={updateBreakCount}
             />
           ))
@@ -146,6 +150,7 @@ function PostList({ posts, setPosts }) {
   );
 }
 
+// Inline Styles
 const styles = {
   controlsContainer: {
     display: 'flex',
@@ -185,15 +190,12 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
   },
-  outputContainer: {
-    marginTop: '20px',
-  },
   noResultsMessage: {
-    textAlign: 'center',
-    color: 'rgba(0, 0, 0, 0.5)',
-    fontSize: '14px',
-    marginTop: '10px',
-    marginBottom: '10px',
+    color: 'red',
+    marginBottom: '20px',
+  },
+  outputContainer: {
+    // Add your desired styles here
   },
 };
 

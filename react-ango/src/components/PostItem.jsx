@@ -3,11 +3,21 @@ import React, { useState, useEffect } from 'react';
 import API_URL from '../config';
 import posthog from 'posthog-js';
 
-function PostItem({ post, breakCount, attempts, onQuestionBroken }) {
+function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
   const [userAnswer, setUserAnswer] = useState('');
   const [isCorrect, setIsCorrect] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [currentRatio, setCurrentRatio] = useState(ratio);
+
+  const getHardnessEmoji = (ratioValue) => {
+    if (attempts === 0) return '😐'; // No attempts yet
+    console.log(`Post ${post.id} - Ratio: ${ratioValue.toFixed(2)}, Breaks: ${breakCount}, Attempts: ${attempts}`);
+    if (ratioValue > 0.66) return `😅`; // Easy
+    if (ratioValue > 0.33) return `😓`; // Medium
+    if (ratioValue > 0.1) return `😰`; // Hard
+    return `😱`; // Extremely hard
+  };
 
   const handleCheckAnswer = async () => {
     setIsLoading(true);
@@ -33,15 +43,24 @@ function PostItem({ post, breakCount, attempts, onQuestionBroken }) {
 
       if (result.isCorrect) {
         setIsCorrect(true);
-        // Capture event for breaking the question
         posthog.capture('question_broken', { 
           postId: post.id,
           question: post.question
         });
-        // Call the callback to update the break count
         onQuestionBroken(post.id);
+        // Update the ratio locally
+        setCurrentRatio((prevRatio) => {
+          const newBreakCount = breakCount + 1;
+          const newAttempts = attempts + 1;
+          return newBreakCount / newAttempts;
+        });
       } else {
         setIsCorrect(false);
+        // Update attempts locally
+        setCurrentRatio((prevRatio) => {
+          const newAttempts = attempts + 1;
+          return breakCount / newAttempts;
+        });
       }
     } catch (err) {
       console.error('Error checking answer:', err);
@@ -53,7 +72,6 @@ function PostItem({ post, breakCount, attempts, onQuestionBroken }) {
 
   useEffect(() => {
     if (isCorrect) {
-      // Capture event for viewing post contents
       posthog.capture('post_contents_viewed', { 
         postId: post.id,
         question: post.question
@@ -61,18 +79,10 @@ function PostItem({ post, breakCount, attempts, onQuestionBroken }) {
     }
   }, [isCorrect]);
 
-  const getHardnessEmoji = (breakCount, attempts) => {
-    if (attempts === 0) {
-      console.log(`Post ${post.id} - No attempts yet`);
-      return '😐';
-    }
-    const ratio = breakCount / attempts;
-    console.log(`Post ${post.id} - Ratio: ${ratio.toFixed(2)}, Breaks: ${breakCount}, Attempts: ${attempts}`);
-    if (ratio > 0.66) return '🤣';
-    if (ratio > 0.33) return '😅';
-    if (ratio > 0.1) return '😰';
-    return '😱';
-  };
+  // Update current ratio if the ratio prop changes (e.g., after fetching new data)
+  useEffect(() => {
+    setCurrentRatio(ratio);
+  }, [ratio]);
 
   return (
     <div style={styles.postContainer}>
@@ -81,7 +91,7 @@ function PostItem({ post, breakCount, attempts, onQuestionBroken }) {
           {post.question}
           {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
           {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>} 
-          <span style={styles.hardnessEmoji}>{getHardnessEmoji(breakCount, attempts)}</span>
+          <span style={styles.hardnessEmoji}>{getHardnessEmoji(currentRatio)}</span>
         </div>
         <div>
           {isCorrect ? '✅' : isCorrect === false ? '❌' : ''}
@@ -128,6 +138,10 @@ const styles = {
     boxShadow: '0 0 10px rgba(0, 0, 0, 0.05)',
     backgroundColor: '#fff'
   },
+  hardnessEmoji: {
+    fontSize: '1.2em',
+    marginLeft: '10px',
+  },
   answerSection: {
     display: 'flex',
     alignItems: 'center',
@@ -157,11 +171,6 @@ const styles = {
   errorText: {
     color: 'red',
     marginTop: '10px'
-  },
-  hardnessEmoji: {
-    fontSize: '0.8em',
-    color: '#666',
-    marginLeft: '10px',
   }
 };
 

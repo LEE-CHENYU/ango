@@ -239,12 +239,12 @@ app.post('/api/rank-posts', async (req, res) => {
   }
 });
 
-// Endpoint to get all break counts
+// Endpoint to get all break counts and attempts
 app.get('/api/break-counts', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT post_id, break_count FROM post_break_counts');
+    const { rows } = await pool.query('SELECT post_id, break_count, attempts FROM post_break_counts');
     const breakCounts = rows.reduce((acc, row) => {
-      acc[row.post_id] = row.break_count;
+      acc[row.post_id] = { breakCount: row.break_count, attempts: row.attempts };
       return acc;
     }, {});
     res.json(breakCounts);
