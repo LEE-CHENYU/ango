@@ -46,7 +46,7 @@ class AnswerChecker:
         
         try:
             response = self.client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "You are an expert in evaluating the correctness of answers. Determine if the user's answer is acceptable."},
                     {"role": "user", "content": prompt}
