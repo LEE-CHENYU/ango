@@ -1,8 +1,10 @@
 // src/App.jsx
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Header from './components/Header.jsx';
 import Form from './components/Form.jsx';
 import PostList from './components/PostList.jsx';
+import InfoPage from './components/InfoPage.jsx';
 import API_URL from './config';
 
 function App() {
@@ -20,7 +22,7 @@ function App() {
       if (response.ok) {
         const newPost = await response.json();
         console.log('Post added successfully');
-        setPosts(prevPosts => [newPost, ...prevPosts]); // Update posts state
+        setPosts(prevPosts => [newPost, ...prevPosts]);
       } else {
         console.error('Failed to add post');
       }
@@ -30,13 +32,25 @@ function App() {
   };
 
   return (
-    <div className="App" style={styles.appContainer}>
-      <div style={styles.headerContainer}>
-        <Header />
+    <Router>
+      <div className="App" style={styles.appContainer}>
+        <div style={styles.headerContainer}>
+          <Header />
+        </div>
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Form onAddPost={handleAddPost} />
+              <PostList posts={posts} setPosts={setPosts} />
+            </>
+          } />
+          <Route path="/info" element={<InfoPage />} />
+        </Routes>
+        <div style={styles.infoLinkContainer}>
+          <a href="/info" style={styles.infoLink}>info</a>
+        </div>
       </div>
-      <Form onAddPost={handleAddPost} />
-      <PostList posts={posts} setPosts={setPosts} />
-    </div>
+    </Router>
   );
 }
 
@@ -55,6 +69,16 @@ const styles = {
     justifyContent: 'center',
     width: '100%',
     marginBottom: '20px',
+  },
+  infoLinkContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop: '20px',
+  },
+  infoLink: {
+    color: '#007BFF',
+    textDecoration: 'none',
+    fontSize: '14px',
   }
 };
 
