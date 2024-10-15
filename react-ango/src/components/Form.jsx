@@ -147,19 +147,21 @@ const styles = {
   formContainer: {
     maxWidth: '500px',
     margin: '0 auto',
-    backgroundColor: '#f9fafc', // Lighter background color
+    backgroundColor: '#f9fafc',
     padding: '20px',
     borderRadius: '8px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.05)' // Lighter shadow
+    boxShadow: '0 0 10px rgba(0, 0, 0, 0.05)'
   },
   createButton: {
-    backgroundColor: '#007BFF', // Blue
+    backgroundColor: '#007BFF',
     color: '#fff',
     border: 'none',
     padding: '10px 20px',
-    borderRadius: '5px',
+    borderRadius: '12px',
     cursor: 'pointer',
-    fontSize: '16px'
+    fontSize: '16px',
+    fontFamily: 'Lato, sans-serif',
+    fontWeight: '450'
   },
   form: {
     position: 'relative'
@@ -170,39 +172,43 @@ const styles = {
     top: '10px',
     right: '15px',
     fontSize: '24px',
-    color: '#4a90e2' // Lighter blue
+    color: '#4a90e2'
   },
   labelStyle: {
     display: 'block',
     marginBottom: '5px',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+    fontFamily: 'Lato, sans-serif'
   },
   inputStyle: {
     width: '100%',
     padding: '8px',
     marginBottom: '15px',
     borderRadius: '4px',
-    border: '1px solid #e1e4e8' // Lighter border color
+    border: '1px solid #e1e4e8',
+    fontFamily: 'Lato, sans-serif'
   },
   checkButton: {
-    backgroundColor: '#4a90e2', // Even lighter blue
+    backgroundColor: '#4a90e2',
     color: '#fff',
     border: 'none',
     padding: '8px 16px',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',
-    marginBottom: '15px'
+    marginBottom: '15px',
+    fontFamily: 'Lato, sans-serif'
   },
   submitButton: {
-    backgroundColor: '#4a90e2', // Even lighter blue
+    backgroundColor: '#4a90e2',
     color: '#fff',
     border: 'none',
     padding: '10px 20px',
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '16px',
-    width: '100%'
+    width: '100%',
+    fontFamily: 'Lato, sans-serif'
   },
   checkboxContainer: {
     display: 'flex',
@@ -213,17 +219,19 @@ const styles = {
     marginRight: '10px'
   },
   checkboxLabelStyle: {
-    fontFamily: 'Courier New, monospace',
-    color: '#4a90e2', // Lighter blue
+    fontFamily: 'Lato, sans-serif',
+    color: '#4a90e2',
     fontSize: '14px'
   },
   iconStyle: {
     marginLeft: '5px',
-    fontSize: '16px'
+    fontSize: '16px',
+    fontFamily: 'Lato, sans-serif'
   },
   errorText: {
-    color: '#ff6b6b', // Lighter red
-    marginBottom: '15px'
+    color: '#ff6b6b',
+    marginBottom: '15px',
+    fontFamily: 'Lato, sans-serif'
   }
 };
 

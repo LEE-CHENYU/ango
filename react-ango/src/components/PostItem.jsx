@@ -9,22 +9,22 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentRatio, setCurrentRatio] = useState(ratio);
-  const [resultMessage, setResultMessage] = useState(''); // New state for the message
+  const [resultMessage, setResultMessage] = useState('');
   const [showHardnessEmoji, setShowHardnessEmoji] = useState(true);
 
   const getHardnessEmoji = (ratioValue) => {
-    if (attempts === 0) return '😐'; // No attempts yet
+    if (attempts === 0) return '😐';
     console.log(`Post ${post.id} - Ratio: ${ratioValue.toFixed(2)}, Breaks: ${breakCount}, Attempts: ${attempts}`);
-    if (ratioValue > 0.66) return `😅`; // Easy
-    if (ratioValue > 0.33) return `😓`; // Medium
-    if (ratioValue > 0.1) return `😰`; // Hard
-    return `😱`; // Extremely hard
+    if (ratioValue > 0.66) return `😅`;
+    if (ratioValue > 0.33) return `😓`;
+    if (ratioValue > 0.1) return `😰`;
+    return `😱`;
   };
 
   const handleCheckAnswer = async () => {
     setIsLoading(true);
     setError('');
-    setShowHardnessEmoji(false); // Hide hardness emoji when checking answer
+    setShowHardnessEmoji(false);
     try {
       const response = await fetch(`${API_URL}/api/check-answer-ambiguity`, {
         method: 'POST',
@@ -51,21 +51,17 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
           postId: post.id,
           question: post.question
         });
-        // Update the ratio locally
         const newBreakCount = breakCount + 1;
         const newAttempts = attempts + 1;
         const newRatio = newBreakCount / newAttempts;
         setCurrentRatio(newRatio);
-        // Update the backend with isCorrect and message
         await onQuestionBroken(post.id, true);
       } else {
         setIsCorrect(false);
-        // Update attempts locally
         const newBreakCount = breakCount;
         const newAttempts = attempts + 1;
         const newRatio = newBreakCount / newAttempts;
         setCurrentRatio(newRatio);
-        // Update the backend with isCorrect and message
         await onQuestionBroken(post.id, false);
       }
     } catch (err) {
@@ -85,7 +81,6 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
     }
   }, [isCorrect]);
 
-  // Update current ratio if the ratio prop changes (e.g., after fetching new data)
   useEffect(() => {
     setCurrentRatio(ratio);
   }, [ratio]);
@@ -106,11 +101,10 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
           )}
         </div>
       </div>
-      
       <div style={styles.answerSection}>
         <input
           type="text"
-          placeholder="Enter your answer"
+          placeholder="Your answer"
           value={userAnswer}
           onChange={(e) => setUserAnswer(e.target.value)}
           style={styles.answerInput}
@@ -120,78 +114,89 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
           style={styles.checkButton}
           disabled={isLoading || userAnswer.trim() === ''}
         >
-          {isLoading ? 'Checking...' : 'Check Answer'}
+          {isLoading ? 'Checking...' : 'Check'}
         </button>
       </div>
-
       {error && <p style={styles.errorText}>{error}</p>}
-      
       {isCorrect && (
         <div style={styles.detailsContainer}>
           <p><strong>Address:</strong> {post.address}</p>
           <p><strong>Time:</strong> {post.time}</p>
-          {/* Add more details as needed */}
         </div>
       )}
     </div>
   );
 }
-
-// Inline Styles
 const styles = {
   postContainer: {
     marginBottom: '20px',
     padding: '15px',
     border: '1px solid #ccc',
     borderRadius: '8px',
-    boxShadow: '0 0 10px rgba(0, 0, 0, 0.05)',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    fontFamily: 'Lato, sans-serif',
   },
   headerContainer: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '10px',
+    fontFamily: 'Lato, sans-serif',
   },
   questionContainer: {
     flex: 1,
+    fontSize: '16px',
+    fontFamily: 'Lato, sans-serif',
+    fontWeight: 200,
   },
   emojiContainer: {
     minWidth: '30px',
     textAlign: 'right',
-  },
-  hardnessEmoji: {
-    fontSize: '1.2em',
+    fontFamily: 'Lato, sans-serif',
   },
   answerSection: {
     display: 'flex',
     alignItems: 'center',
-    marginTop: '10px'
+    fontFamily: 'Lato, sans-serif',
   },
   answerInput: {
     flex: 1,
-    padding: '8px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
-    marginRight: '10px'
+    padding: '8px 0',
+    fontSize: '16px',
+    border: 'none',
+    borderBottom: '1px solid rgba(0, 0, 0, 0.2)',
+    backgroundColor: 'transparent',
+    marginRight: '10px',
+    outline: 'none',
+    fontFamily: 'Lato, sans-serif',
   },
   checkButton: {
     padding: '8px 16px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer'
+    backgroundColor: 'transparent',
+    color: '#4285F4',
+    border: '2px solid #4285F4',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    fontFamily: 'Lato, sans-serif',
+    fontSize: '16px',
+    fontWeight: 200,
+    textTransform: 'capitalize',
+  },
+  errorText: {
+    color: 'red',
+    marginTop: '10px',
+    fontFamily: 'Lato, sans-serif',
   },
   detailsContainer: {
     marginTop: '15px',
     padding: '10px',
     backgroundColor: '#e6f2ff',
-    borderRadius: '5px'
+    borderRadius: '5px',
+    fontFamily: 'Lato, sans-serif',
   },
-  errorText: {
-    color: 'red',
-    marginTop: '10px'
+  hardnessEmoji: {
+    fontSize: '1.2em',
+    fontFamily: 'Lato, sans-serif',
   }
 };
 

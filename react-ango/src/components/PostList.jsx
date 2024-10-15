@@ -120,19 +120,22 @@ function PostList({ posts, setPosts }) {
   return (
     <div>
       <div style={styles.controlsContainer}>
-        <div style={styles.refreshIconContainer}>
-          <FiRefreshCw onClick={fetchPosts} style={styles.refreshIcon} />
+        <h3 style={styles.title}>ANGOs</h3>
+        <div style={styles.searchContainer}>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={handleSearchInputChange}
+            placeholder="Search ANGOs..."
+            style={styles.searchInput}
+          />
+          <button onClick={rankPosts} style={styles.searchButton}>
+            <FiSearch />
+          </button>
         </div>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={handleSearchInputChange}
-          placeholder="Search posts..."
-          style={styles.searchInput}
-        />
-        <button onClick={rankPosts} style={styles.searchButton}>
-          <FiSearch />
-        </button>
+        <div style={styles.refreshIconContainer} onClick={fetchPosts}>
+          <FiRefreshCw style={styles.refreshIcon} />
+        </div>
       </div>
       {noRelevantResults && (
         <div style={styles.noResultsMessage}>
@@ -141,7 +144,9 @@ function PostList({ posts, setPosts }) {
       )}
       <div id="output" style={styles.outputContainer}>
         {rankedPosts.length === 0 ? (
-          <p>No posts available.</p>
+          <div style={styles.noAngosContainer}>
+            <p style={styles.noAngosText}>No ANGOs available.</p>
+          </div>
         ) : (
           rankedPosts.map((post) => (
             <PostItem
@@ -150,7 +155,7 @@ function PostList({ posts, setPosts }) {
               breakCount={breakCounts[post.id]?.breakCount || 0}
               attempts={breakCounts[post.id]?.attempts || 0}
               ratio={postRatios[post.id] || 0}
-              onQuestionBroken={updateBreakCount} // Now expects (postId, isCorrect)
+              onQuestionBroken={updateBreakCount}
             />
           ))
         )}
@@ -159,33 +164,31 @@ function PostList({ posts, setPosts }) {
   );
 }
 
-// Inline Styles
 const styles = {
   controlsContainer: {
     display: 'flex',
     alignItems: 'center',
     marginBottom: '20px',
+    fontFamily: 'Lato, sans-serif',
   },
-  refreshIconContainer: {
+  title: {
+    margin: '0 20px 0 0',
+    fontSize: '16px',
+    fontWeight: '450',
+    fontFamily: 'Lato, sans-serif',
+  },
+  searchContainer: {
     display: 'flex',
-    alignItems: 'center',
-    padding: '8px',
-    border: '2px solid #007BFF',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    marginRight: '10px',
-  },
-  refreshIcon: {
-    fontSize: '24px',
-    color: '#007BFF',
+    flex: 1,
+    fontFamily: 'Lato, sans-serif',
   },
   searchInput: {
     flex: 1,
     padding: '10px',
     fontSize: '16px',
-    border: '2px solid #007BFF',
-    borderRadius: '4px',
-    marginRight: '10px',
+    border: '1px solid #ccc',
+    borderRadius: '4px 0 0 4px',
+    fontFamily: 'Lato, sans-serif',
   },
   searchButton: {
     display: 'flex',
@@ -193,18 +196,44 @@ const styles = {
     justifyContent: 'center',
     padding: '10px',
     fontSize: '16px',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#4285F4',
     color: '#fff',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '0 4px 4px 0',
     cursor: 'pointer',
+    fontFamily: 'Lato, sans-serif',
+  },
+  refreshIconContainer: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '10px',
+    cursor: 'pointer',
+    marginLeft: '10px',
+    fontFamily: 'Lato, sans-serif',
+  },
+  refreshIcon: {
+    fontSize: '20px',
+    color: '#4285F4',
+    fontFamily: 'Lato, sans-serif',
   },
   noResultsMessage: {
     color: 'red',
     marginBottom: '20px',
+    fontFamily: 'Lato, sans-serif',
   },
   outputContainer: {
-    // Add your desired styles here
+    fontFamily: 'Lato, sans-serif',
+  },
+  noAngosContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '200px',
+  },
+  noAngosText: {
+    fontSize: '18px',
+    color: '#666',
+    fontFamily: 'Lato, sans-serif',
   },
 };
 
