@@ -174,7 +174,7 @@ const styles = {
   title: {
     margin: '0 20px 0 0',
     fontSize: '16px',
-    fontWeight: '450',
+    fontWeight: '600',
     fontFamily: 'Lato, sans-serif',
   },
   searchContainer: {

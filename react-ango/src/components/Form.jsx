@@ -10,7 +10,7 @@ function Form({ onAddPost }) {
   const [time, setTime] = useState('');
   const [ambiguous_mode, setAmbiguous_mode] = useState(false);
   const [llm_breakable, setLlm_breakable] = useState(false);
-  const [breakabilityIcon, setBreakabilityIcon] = useState('');
+  const [breakabilityStatus, setBreakabilityStatus] = useState('Check Breakability');
   const [error, setError] = useState('');
 
   const handleSubmit = async (event) => {
@@ -30,7 +30,7 @@ function Form({ onAddPost }) {
       setTime('');
       setAmbiguous_mode(false);
       setLlm_breakable(false);
-      setBreakabilityIcon('');
+      setBreakabilityStatus('Check Breakability');
       setError('');
     } else {
       console.error('onAddPost is not a function.');
@@ -38,7 +38,6 @@ function Form({ onAddPost }) {
   };
 
   const checkQuestionBreakability = async () => {
-    setBreakabilityIcon(''); // Clear the icon before checking
     setError('');
     if (question.trim()) {
       try {
@@ -51,10 +50,10 @@ function Form({ onAddPost }) {
         });
         const result = await response.json();
         if (result.isBreakable) {
-          setBreakabilityIcon('✅');
+          setBreakabilityStatus('❌ LLM Breakable');
           setLlm_breakable(true);
         } else {
-          setBreakabilityIcon('❌');
+          setBreakabilityStatus('✅ LLM Unbreakable');
           setLlm_breakable(false);
         }
       } catch (error) {
@@ -74,46 +73,26 @@ function Form({ onAddPost }) {
           <span onClick={() => setFormVisible(false)} style={styles.closeIcon}>&times;</span>
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={{ marginTop: '30px' }}>
-              <input
-                type="text"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                style={styles.inputStyle}
-                required
-                placeholder="ANGO"
-              />
-              <input
-                type="text"
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value)}
-                style={styles.inputStyle}
-                required
-                placeholder="Match"
-              />
-              <button
-                type="button"
-                onClick={checkQuestionBreakability}
-                style={styles.checkButton}
-              >
-                Check Breakability {breakabilityIcon && <span style={styles.iconStyle}>{breakabilityIcon}</span>}
-              </button>
-              {error && <p style={styles.errorText}>{error}</p>}
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                style={styles.inputStyle}
-                required
-                placeholder="Address"
-              />
-              <input
-                type="text"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                style={styles.inputStyle}
-                required
-                placeholder="Time"
-              />
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  style={styles.inputStyle}
+                  required
+                  placeholder="ANGO"
+                />
+              </div>
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  style={styles.inputStyle}
+                  required
+                  placeholder="Match Word"
+                />
+              </div>
               <div style={styles.checkboxContainer}>
                 <input
                   type="checkbox"
@@ -123,14 +102,42 @@ function Form({ onAddPost }) {
                   style={styles.checkboxStyle}
                 />
                 <label htmlFor="ambiguous-mode" style={styles.checkboxLabelStyle}>
-                  Use Ambiguous Matching Mode
+                  Getting my meaning is fine!
                 </label>
+                <button
+                  type="button"
+                  onClick={checkQuestionBreakability}
+                  style={{...styles.checkButton, marginLeft: 'auto'}}
+                >
+                  {breakabilityStatus}
+                </button>
+              </div>
+              {error && <p style={styles.errorText}>{error}</p>}
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  style={styles.inputStyle}
+                  required
+                  placeholder="Address"
+                />
+              </div>
+              <div style={styles.inputGroup}>
+                <input
+                  type="text"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  style={styles.inputStyle}
+                  required
+                  placeholder="Time"
+                />
               </div>
               <button
                 type="submit"
                 style={styles.submitButton}
               >
-                Add Post
+                Add ANGO
               </button>
             </div>
           </form>
@@ -188,6 +195,13 @@ const styles = {
     border: '1px solid #e1e4e8',
     fontFamily: 'Lato, sans-serif'
   },
+  inputGroup: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '15px',
+    width: '100%'
+  },
   checkButton: {
     backgroundColor: '#4a90e2',
     color: '#fff',
@@ -196,8 +210,9 @@ const styles = {
     borderRadius: '4px',
     cursor: 'pointer',
     fontSize: '14px',
-    marginBottom: '15px',
-    fontFamily: 'Lato, sans-serif'
+    fontFamily: 'Lato, sans-serif',
+    whiteSpace: 'nowrap',
+    marginLeft: '10px'
   },
   submitButton: {
     backgroundColor: '#4a90e2',
@@ -222,11 +237,6 @@ const styles = {
     fontFamily: 'Lato, sans-serif',
     color: '#4a90e2',
     fontSize: '14px'
-  },
-  iconStyle: {
-    marginLeft: '5px',
-    fontSize: '16px',
-    fontFamily: 'Lato, sans-serif'
   },
   errorText: {
     color: '#ff6b6b',

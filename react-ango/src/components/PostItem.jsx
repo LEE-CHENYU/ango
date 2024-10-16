@@ -90,8 +90,8 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
       <div style={styles.headerContainer}>
         <div style={styles.questionContainer}>
           {post.question}
-          {post.llm_breakable && <span role="img" aria-label="LLM Breakable">🤖</span>}
-          {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🌫️</span>}
+          {post.llm_breakable === false && <span role="img" aria-label="LLM Breakable">🔒</span>}
+          {post.ambiguous_mode && <span role="img" aria-label="Ambiguous Mode">🤖</span>}
         </div>
         <div style={styles.emojiContainer}>
           {showHardnessEmoji ? (
@@ -127,11 +127,12 @@ function PostItem({ post, breakCount, attempts, ratio, onQuestionBroken }) {
     </div>
   );
 }
+
 const styles = {
   postContainer: {
     marginBottom: '20px',
     padding: '15px',
-    border: '1px solid #ccc',
+    border: '1px solid transparent',
     borderRadius: '8px',
     backgroundColor: '#fff',
     fontFamily: 'Lato, sans-serif',
@@ -147,7 +148,7 @@ const styles = {
     flex: 1,
     fontSize: '16px',
     fontFamily: 'Lato, sans-serif',
-    fontWeight: 200,
+    fontWeight: 300,
   },
   emojiContainer: {
     minWidth: '30px',
@@ -158,6 +159,7 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     fontFamily: 'Lato, sans-serif',
+    fontWeight: 100,
   },
   answerInput: {
     flex: 1,
