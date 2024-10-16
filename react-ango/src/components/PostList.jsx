@@ -9,6 +9,7 @@ function PostList({ posts, setPosts }) {
   const [noRelevantResults, setNoRelevantResults] = useState(false);
   const [breakCounts, setBreakCounts] = useState({});
   const [postRatios, setPostRatios] = useState({});
+  const [isSearching, setIsSearching] = useState(false);
 
   const fetchPosts = async () => {
     try {
@@ -60,6 +61,7 @@ function PostList({ posts, setPosts }) {
       return;
     }
 
+    setIsSearching(true);
     try {
       const response = await fetch(`${API_URL}/api/rank-posts`, {
         method: 'POST',
@@ -79,6 +81,8 @@ function PostList({ posts, setPosts }) {
       console.error('Error ranking posts:', error);
       setRankedPosts(posts);
       setNoRelevantResults(false);
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -137,6 +141,11 @@ function PostList({ posts, setPosts }) {
           <FiRefreshCw style={styles.refreshIcon} />
         </div>
       </div>
+      {isSearching && (
+        <div style={styles.searchingMessage}>
+          Searching very hard...
+        </div>
+      )}
       {noRelevantResults && (
         <div style={styles.noResultsMessage}>
           No relevant results found
@@ -215,6 +224,12 @@ const styles = {
     fontSize: '20px',
     color: '#4285F4',
     fontFamily: 'Lato, sans-serif',
+  },
+  searchingMessage: {
+    color: '#4285F4',
+    marginBottom: '20px',
+    fontFamily: 'Lato, sans-serif',
+    textAlign: 'center',
   },
   noResultsMessage: {
     color: 'red',
