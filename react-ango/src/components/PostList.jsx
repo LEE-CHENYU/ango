@@ -148,7 +148,7 @@ function PostList({ posts, setPosts }) {
       )}
       {noRelevantResults && (
         <div style={styles.noResultsMessage}>
-          No relevant results found
+          Hang tight! Someone like you is out there.
         </div>
       )}
       <div id="output" style={styles.outputContainer}>
@@ -232,9 +232,10 @@ const styles = {
     textAlign: 'center',
   },
   noResultsMessage: {
-    color: 'red',
+    color: '#4285F4',
     marginBottom: '20px',
     fontFamily: 'Lato, sans-serif',
+    textAlign: 'center',
   },
   outputContainer: {
     fontFamily: 'Lato, sans-serif',
